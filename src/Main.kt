@@ -7,7 +7,7 @@ fun main(argv: Array<String>) {
     val treeBuilder = TreeBuilder(e!!)
     println(e.toString())
     println("--- Get Tree ---")
-    println(treeBuilder.printTree())
+    treeBuilder.showTree()
 
     println("--- done ---")
 }//main
