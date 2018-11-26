@@ -12,25 +12,56 @@ import javax.swing.JFrame
 class TreeBuilder(exp: Expression) {
 
     val graph = DelegateTree<Expression, String>()
+    var isRootSet = false
+    lateinit var resultExpression: Expression.Binary
 
     init {
-        graph.root = exp
-        checkExpressionType(exp)
+        checkExpressionType(exp){ resultExpression = rebuildExpression(it) }
+        if (!isRootSet) {
+            graph.root = resultExpression
+            isRootSet = true
+        }
+        buildTree(resultExpression)
     }
 
-    private fun checkExpressionType(exp: Expression) {
-
+    private fun checkExpressionType(exp: Expression, method: (exp: Expression.Binary) -> Unit) {
         when (exp) {
-            is Expression.Binary ->  buildTree(exp)
+            is Expression.Binary -> method(exp)
+            //else -> if (!isRootSet) graph.root = exp
         }
     }
 
-    fun buildTree(exp: Expression.Binary){
+    fun rebuildExpression(exp: Expression.Binary): Expression.Binary {
+        lateinit var buffExp: Expression.Binary
+        when(exp.opr) {
+            4,6 -> buffExp = paralellizeTree(exp)
+            5 -> buffExp = paralellizeTree(exp,4)
+            7 -> buffExp = paralellizeTree(exp, 6)
+        }
+
+        checkExpressionType(buffExp.left){ rebuildExpression(it) }
+        checkExpressionType(buffExp.right){ rebuildExpression(it) }
+        return buffExp
+    }
+
+    fun buildTree(exp: Expression.Binary) {
+
         graph.addChild("$exp${exp.left}", exp, exp.left)
         graph.addChild("$exp${exp.right}", exp, exp.right)
 
-        checkExpressionType(exp.left)
-        checkExpressionType(exp.right)
+        checkExpressionType(exp.left){ buildTree(it) }
+        checkExpressionType(exp.right){ buildTree(it) }
+    }
+
+    fun paralellizeTree(exp: Expression.Binary, rightOpr: Int = exp.opr): Expression.Binary = with(exp) {
+        val startLeftExpression = left
+        val startRightExpression = right
+        if (startLeftExpression is Expression.Binary && (startLeftExpression.opr == opr)) {
+            val newRightExp = Expression.Binary(rightOpr, startLeftExpression.right, startRightExpression)
+            val newLeftExp = startLeftExpression.left
+            return Expression.Binary(startLeftExpression.opr, newLeftExp, newRightExp)
+        }
+        return this
     }
 
     fun showTree() {
