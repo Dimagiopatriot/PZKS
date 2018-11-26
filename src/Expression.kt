@@ -28,7 +28,7 @@ abstract class Expression {   // Defines expression parse-trees
         }
     }
 
-    class Binary(val opr: Int, val left: Expression, val right: Expression): Expression() {
+    class Binary(var opr: Int, var left: Expression, var right: Expression): Expression() {
         override fun appendSB(targetStr: StringBuilder) {
             targetStr.append("(")
             left.appendSB(targetStr)

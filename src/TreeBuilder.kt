@@ -7,34 +7,31 @@ import java.awt.Color
 import java.awt.Dimension
 import java.awt.Paint
 import javax.swing.JFrame
-import kotlin.math.exp
 
 
 class TreeBuilder(exp: Expression) {
 
     val graph = DelegateTree<Expression, String>()
-    var isRootSet = false
     lateinit var resultExpression: Expression.Binary
     val expressionArr = mutableListOf<Expression.Binary>()
 
     init {
-        checkExpressionType(exp) { decomposeExpression(it) }
-        composeNewExpression(exp)
-        if (!isRootSet) {
+        if (exp is Expression.Binary) {
+            checkExpressionType(exp) { resultExpression = rebuildExpression(it) }
             graph.root = resultExpression
-            isRootSet = true
+            buildTree(resultExpression)
+        } else {
+            graph.root = exp
         }
-        buildTree(resultExpression)
     }
 
     private fun checkExpressionType(exp: Expression, method: (exp: Expression.Binary) -> Unit) {
         when (exp) {
             is Expression.Binary -> method(exp)
-            //else -> if (!isRootSet) graph.root = exp
         }
     }
 
-    fun decomposeExpression(exp: Expression.Binary): Expression.Binary {
+    fun rebuildExpression(exp: Expression.Binary): Expression.Binary {
         lateinit var buffExp: Expression.Binary
         when (exp.opr) {
             4, 6 -> buffExp = paralellizeTree(exp)
@@ -43,26 +40,12 @@ class TreeBuilder(exp: Expression) {
         }
         expressionArr.add(buffExp)
 
-        checkExpressionType(buffExp.left) { decomposeExpression(it) }
-        checkExpressionType(buffExp.right) { decomposeExpression(it) }
+        checkExpressionType(buffExp.left) { buffExp.left = rebuildExpression(it) }
+        checkExpressionType(buffExp.right) { buffExp.right = rebuildExpression(it) }
         return buffExp
     }
 
-    fun composeNewExpression(startExpression: Expression) {
-        val newExpressionStart = expressionArr.find { it.left == startExpression && it.left !is Expression.Binary }
-        if (newExpressionStart == null) {
-            composeNewExpression((startExpression as Expression.Binary).left)
-        } else {
-            val operationQueue = mutableListOf<Expression.Binary>()
-            operationQueue.addAll(expressionArr.subList(0, expressionArr.indexOf(newExpressionStart)))
-            val nodesDequeue = expressionArr.subList(expressionArr.indexOf(newExpressionStart), expressionArr.lastIndex + 1)
-            print(nodesDequeue)
-        }
-
-    }
-
     fun buildTree(exp: Expression.Binary) {
-
         graph.addChild("$exp${exp.left}", exp, exp.left)
         graph.addChild("$exp${exp.right}", exp, exp.right)
 
