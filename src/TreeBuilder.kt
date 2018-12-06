@@ -19,7 +19,6 @@ class TreeBuilder(exp: Expression) {
         if (exp is Expression.Binary) {
             checkExpressionType(exp) { resultExpression = rebuildExpression(it) }
             graph.root = resultExpression
-            Commutation(resultExpression)
             buildTree(resultExpression)
         } else {
             graph.root = exp
@@ -47,8 +46,8 @@ class TreeBuilder(exp: Expression) {
     }
 
     fun buildTree(exp: Expression.Binary) {
-        graph.addChild("$exp${exp.left}", exp, exp.left)
-        graph.addChild("$exp${exp.right}", exp, exp.right)
+        graph.addChild("$exp${exp.left.hashCode()}", exp, exp.left)
+        graph.addChild("$exp${exp.right.hashCode()}", exp, exp.right)
 
         checkExpressionType(exp.left) { buildTree(it) }
         checkExpressionType(exp.right) { buildTree(it) }

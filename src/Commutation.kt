@@ -1,6 +1,8 @@
-class Commutation(val enterExpression: Expression.Binary) {
+class Commutation(enterExpression: Expression.Binary) {
 
     val possibleForms = mutableListOf<Expression>()
+    val enterExpressionClone = Expression.Binary(enterExpression.opr, enterExpression.left, enterExpression.right)
+
     var iteration = 0
     var globalWhileIteration = 0
 
@@ -11,41 +13,27 @@ class Commutation(val enterExpression: Expression.Binary) {
     }
 
     fun startCommutate() {
-        for (whileIteration in 0..7) {
-            possibleForms.add(commutate(enterExpression))
-            globalWhileIteration  = whileIteration
-        }
+        possibleForms.add(commutate(enterExpressionClone))
     }
 
     fun commutate(enterExpression: Expression): Expression {
         var buffExp = enterExpression
-        if (buffExp is Expression.Binary) {
-            var buffExpLeft = buffExp.left
-            var buffExpRight = buffExp.right
-            while (iteration < globalWhileIteration) {
-                if (buffExpLeft is Expression.Binary) {
-                    buffExpLeft.left = remakeExp(buffExpLeft)
-                    buffExp.left = buffExpLeft
-                }
-                if (buffExpRight is Expression.Binary) {
-                    buffExpRight.right = remakeExp(buffExpRight)
-                    buffExp.right = buffExpRight
-                }
-                iteration++
-            }
+        if (enterExpression is Expression.Binary) {
+            buffExp = remakeExp(enterExpression)
+            buffExp.left = commutate(buffExp.left)
+            buffExp.right = commutate(buffExp.right)
+            iteration++
         }
         return buffExp
     }
 
-    fun remakeExp(exp: Expression): Expression {
-        if (exp is Expression.Binary) {
-            val startLeftExpression = exp.left
-            val startRightExpression = exp.right
-            if (exp.opr == 4 || exp.opr == 6) {
-                exp.left = startRightExpression
-                exp.right = startLeftExpression
-            }
+    fun remakeExp(exp: Expression.Binary): Expression.Binary = with(exp) {
+        val startLeftExpression = left
+        val startRightExpression = right
+        if (opr == 4 || opr == 6) {
+            left = startRightExpression
+            right = startLeftExpression
         }
-        return exp
+        return this
     }
 }
