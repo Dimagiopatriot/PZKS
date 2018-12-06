@@ -19,6 +19,7 @@ class TreeBuilder(exp: Expression) {
         if (exp is Expression.Binary) {
             checkExpressionType(exp) { resultExpression = rebuildExpression(it) }
             graph.root = resultExpression
+            Commutation(resultExpression)
             buildTree(resultExpression)
         } else {
             graph.root = exp
