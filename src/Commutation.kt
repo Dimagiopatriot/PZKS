@@ -1,30 +1,38 @@
+import kotlin.math.exp
+
 class Commutation(enterExpression: Expression.Binary) {
 
-    val possibleForms = mutableListOf<Expression>()
-    val enterExpressionClone = Expression.Binary(enterExpression.opr, enterExpression.left, enterExpression.right)
-
-    var iteration = 0
-    var globalWhileIteration = 0
+    val nodesList = mutableListOf<Expression>()
 
     init {
         startCommutate()
         println("Варіанти комутації: ")
-        possibleForms.forEach { println("$it") }
     }
 
     fun startCommutate() {
-        possibleForms.add(commutate(enterExpressionClone))
+
+    }
+
+    fun decomposeExpressionToNodes(expression: Expression) {
+        when (expression) {
+            is Expression.Binary -> {
+                decomposeExpressionToNodes(expression.left)
+                decomposeExpressionToNodes(expression.right)
+            }
+            else -> {
+                expression.parent?.let { parent ->
+                    if (parent is Expression.Binary && parent.opr == 4) {
+                        expression.priority = 0
+                        nodesList.add(expression)
+                    }
+                }
+            }
+        }
     }
 
     fun commutate(enterExpression: Expression): Expression {
-        var buffExp = enterExpression
-        if (enterExpression is Expression.Binary) {
-            buffExp = remakeExp(enterExpression)
-            buffExp.left = commutate(buffExp.left)
-            buffExp.right = commutate(buffExp.right)
-            iteration++
-        }
-        return buffExp
+
+        return enterExpression
     }
 
     fun remakeExp(exp: Expression.Binary): Expression.Binary = with(exp) {
