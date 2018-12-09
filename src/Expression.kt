@@ -3,7 +3,7 @@ abstract class Expression {   // Defines expression parse-trees
     abstract fun appendSB(targetStr: java.lang.StringBuilder)  // printing - efficiency!
 
     var syType = -1
-    var parent: Expression? = null
+    var parent: Expression.Binary? = null
     var priority: Int? = null
 
     class Ident(private val id: String) : Expression() {         //Ident

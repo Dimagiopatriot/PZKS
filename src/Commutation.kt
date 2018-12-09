@@ -1,16 +1,20 @@
 import kotlin.math.exp
 
-class Commutation(enterExpression: Expression.Binary) {
+class Commutation(private val enterExpression: Expression.Binary) {
 
-    val nodesList = mutableListOf<Expression>()
+    val nodesList = mutableSetOf<Expression>()
+    var newExpressionInStringFormat = ""
 
-    init {
-        startCommutate()
-        println("Варіанти комутації: ")
-    }
-
-    fun startCommutate() {
-
+    fun commutateExp() {
+        decomposeExpressionToNodes(enterExpression)
+        val sortedNodes = nodesList.sortedBy { it.priority }
+        sortedNodes.forEach {
+            newExpressionInStringFormat += if (it == sortedNodes.last()){
+                "$it "
+            } else {
+                "$it ${LexerAnalyzer.Symbol[it.parent!!.opr]} "
+            }
+        }
     }
 
     fun decomposeExpressionToNodes(expression: Expression) {
@@ -21,27 +25,30 @@ class Commutation(enterExpression: Expression.Binary) {
             }
             else -> {
                 expression.parent?.let { parent ->
-                    if (parent is Expression.Binary && parent.opr == 4) {
+                    if (parent.opr == 4 &&
+                            (parent.right is Expression.Binary || parent.left is Expression.Binary)) {
                         expression.priority = 0
                         nodesList.add(expression)
+                    }
+                    if (parent.right !is Expression.Binary && parent.left !is Expression.Binary) {
+                        val parentOfParent = parent.parent
+                        if (parentOfParent != null) {
+                            if (parentOfParent.opr == 4) {
+                                parent.priority = 1
+                                nodesList.add(parent)
+                            } else {
+                                parentOfParent.priority = 2
+                                nodesList.add(parentOfParent)
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
-    fun commutate(enterExpression: Expression): Expression {
-
-        return enterExpression
-    }
-
-    fun remakeExp(exp: Expression.Binary): Expression.Binary = with(exp) {
-        val startLeftExpression = left
-        val startRightExpression = right
-        if (opr == 4 || opr == 6) {
-            left = startRightExpression
-            right = startLeftExpression
-        }
-        return this
+    fun printExp() {
+        println("After commutation")
+        println(newExpressionInStringFormat)
     }
 }

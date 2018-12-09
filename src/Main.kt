@@ -7,14 +7,17 @@ fun main(argv: Array<String>) {
     println("----------------")
     println("---- start expression ----")
     println(e.toString())
+    if (e is Expression.Binary) {
+        val commutation = Commutation(e)
+        commutation.commutateExp()
+        commutation.printExp()
+    }
+
     val treeBuilder = TreeBuilder(e!!)
     println("----------------")
     println(e.toString())
     println("--- Get Tree ---")
     treeBuilder.showTree()
-    if (e is Expression.Binary) {
-        Commutation(e)
-    }
 
     println("--- done ---")
 }//main
