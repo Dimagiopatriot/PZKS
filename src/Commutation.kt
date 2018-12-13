@@ -49,7 +49,7 @@ class Commutation(private val enterExpression: Expression.Binary) {
                             if (parentOfParent != null) {
                                 if (parentOfParent.opr == 4) {
                                     if (parentOfParent.parent != null && parentOfParent.parent!!.opr == 7) {
-                                        parentOfParent.parent!!.priority = 2
+                                        parentOfParent.parent!!.priority = 3
                                         nodesList.add(parentOfParent.parent!!)
                                     } else {
                                         parent.priority = 1
