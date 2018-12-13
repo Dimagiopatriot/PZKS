@@ -1,5 +1,3 @@
-import kotlin.math.exp
-
 class Commutation(private val enterExpression: Expression.Binary) {
 
     val nodesList = mutableSetOf<Expression>()
@@ -13,7 +11,7 @@ class Commutation(private val enterExpression: Expression.Binary) {
         val sortedNodes = nodesList.sortedBy { it.priority }.filter {
             it.parent != null && (it == it.parent?.right || it == it.parent?.left)
         }
-        newExpressionInStringFormat += "${sortedNodes[0]}"
+        newExpressionInStringFormat += if (sortedNodes.isNotEmpty()) "${sortedNodes[0]}" else enterExpression
         sortedNodes.dropLast(1).forEachIndexed { index, _ ->
             val nextIt = sortedNodes[index + 1]
             nextIt.parent?.let { parent ->
@@ -48,7 +46,7 @@ class Commutation(private val enterExpression: Expression.Binary) {
                         while (true) {
                             if (parentOfParent != null) {
                                 if (parentOfParent.opr == 4) {
-                                    if (parentOfParent.parent != null && parentOfParent.parent!!.opr == 7) {
+                                    if (parentOfParent.parent != null && (parentOfParent.parent!!.opr == 7 || parentOfParent.parent!!.opr == 6)) {
                                         parentOfParent.parent!!.priority = 3
                                         nodesList.add(parentOfParent.parent!!)
                                     } else {

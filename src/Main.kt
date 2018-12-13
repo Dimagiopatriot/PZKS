@@ -13,6 +13,13 @@ fun main(argv: Array<String>) {
         commutation.printExp()
     }
 
+    if (e is Expression.Binary) {
+        val scopeUnpacker = ScopeUnpacker()
+        scopeUnpacker.mainExpression = e
+        scopeUnpacker.openScopes(scopeUnpacker.mainExpression!!)
+        scopeUnpacker.printExp()
+    }
+
     val treeBuilder = TreeBuilder(e!!)
     println("----------------")
     println(e.toString())
