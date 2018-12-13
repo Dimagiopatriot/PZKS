@@ -48,8 +48,13 @@ class Commutation(private val enterExpression: Expression.Binary) {
                         while (true) {
                             if (parentOfParent != null) {
                                 if (parentOfParent.opr == 4) {
-                                    parent.priority = 1
-                                    nodesList.add(parent)
+                                    if (parentOfParent.parent != null && parentOfParent.parent!!.opr == 7) {
+                                        parentOfParent.parent!!.priority = 2
+                                        nodesList.add(parentOfParent.parent!!)
+                                    } else {
+                                        parent.priority = 1
+                                        nodesList.add(parent)
+                                    }
                                     break
                                 } else {
                                     parentOfParent.priority = 2

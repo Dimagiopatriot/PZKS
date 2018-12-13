@@ -17,7 +17,7 @@ fun main(argv: Array<String>) {
     println("----------------")
     println(e.toString())
     println("--- Get Tree ---")
-    treeBuilder.showTree()
+    //treeBuilder.showTree()
 
     println("--- done ---")
 }//main
