@@ -7,11 +7,11 @@ fun main(argv: Array<String>) {
     println("----------------")
     println("---- start expression ----")
     println(e.toString())
-    if (e is Expression.Binary) {
+  /*  if (e is Expression.Binary) {
         val commutation = Commutation(e)
         commutation.commutateExp()
         commutation.printExp()
-    }
+    }*/
 
     if (e is Expression.Binary) {
         val scopeUnpacker = ScopeUnpacker()
@@ -20,11 +20,11 @@ fun main(argv: Array<String>) {
         scopeUnpacker.printExp()
     }
 
-    val treeBuilder = TreeBuilder(e!!)
+   /* val treeBuilder = TreeBuilder(e!!)
     println("----------------")
     println(e.toString())
     println("--- Get Tree ---")
-    //treeBuilder.showTree()
+    treeBuilder.showTree()*/
 
     println("--- done ---")
 }//main
