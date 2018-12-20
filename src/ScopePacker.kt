@@ -1,4 +1,4 @@
-class ScopePacker( val expression: Expression.Binary) {
+class ScopePacker(val expression: Expression.Binary) {
     fun pack() = packScopes(expression, expression)
 
     private fun packScopes(expression: Expression.Binary, wholeExpression: Expression.Binary) {
@@ -16,7 +16,7 @@ class ScopePacker( val expression: Expression.Binary) {
             expression.right = newExpression.right
             expression.opr = newExpression.opr
 
-            println("Pack scopes: $wholeExpression")
+            println("Scopes: $wholeExpression")
         }
 
         fun handleLeftRight() {
@@ -33,7 +33,7 @@ class ScopePacker( val expression: Expression.Binary) {
             expression.right = newExpression.right
             expression.opr = newExpression.opr
 
-            println("Pack scopes: $wholeExpression")
+            println("Scopes: $wholeExpression")
         }
 
         fun handleRightLeft() {
@@ -50,7 +50,7 @@ class ScopePacker( val expression: Expression.Binary) {
             expression.right = newExpression.right
             expression.opr = newExpression.opr
 
-            println("Pack scopes: $wholeExpression")
+            println("Scopes: $wholeExpression")
         }
 
         fun handleLeftBinaryLeft() {
@@ -66,7 +66,7 @@ class ScopePacker( val expression: Expression.Binary) {
             expression.right = newExpression.right
             expression.opr = newExpression.opr
 
-            println("Pack scopes: $wholeExpression")
+            println("Scopes: $wholeExpression")
         }
 
         fun handleLeftBinaryRight() {
@@ -82,7 +82,7 @@ class ScopePacker( val expression: Expression.Binary) {
             expression.right = newExpression.right
             expression.opr = newExpression.opr
 
-            println("Pack scopes: $wholeExpression")
+            println("Scopes: $wholeExpression")
         }
 
         fun handleRightBinaryLeft() {
@@ -98,7 +98,7 @@ class ScopePacker( val expression: Expression.Binary) {
             expression.right = newExpression.right
             expression.opr = newExpression.opr
 
-            println("Pack scopes: $wholeExpression")
+            println("Scopes: $wholeExpression")
         }
 
         fun handleRightBinaryRight() {
@@ -114,7 +114,7 @@ class ScopePacker( val expression: Expression.Binary) {
             expression.right = newExpression.right
             expression.opr = newExpression.opr
 
-            println("Pack scopes: $wholeExpression")
+            println("Scopes: $wholeExpression")
         }
 
         fun handleRightRight() {
@@ -131,7 +131,7 @@ class ScopePacker( val expression: Expression.Binary) {
             expression.right = newExpression.right
             expression.opr = newExpression.opr
 
-            println("Pack scopes: $wholeExpression")
+            println("Scopes: $wholeExpression")
         }
 
         if (canBePacked(expression)) {
