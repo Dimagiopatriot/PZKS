@@ -14,10 +14,8 @@ fun main(argv: Array<String>) {
     }*/
 
     if (e is Expression.Binary) {
-        val scopeUnpacker = ScopeUnpacker()
-        scopeUnpacker.mainExpression = e
-        scopeUnpacker.openScopes(scopeUnpacker.mainExpression!!)
-        scopeUnpacker.printExp()
+        val scopeUnpacker = ScopePacker(e)
+        scopeUnpacker.pack()
     }
 
    /* val treeBuilder = TreeBuilder(e!!)
