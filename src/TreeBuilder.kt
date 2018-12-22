@@ -6,6 +6,7 @@ import edu.uci.ics.jung.visualization.renderers.Renderer
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Paint
+import java.io.ByteArrayInputStream
 import javax.swing.JFrame
 
 
@@ -18,8 +19,13 @@ class TreeBuilder(exp: Expression) {
     init {
         if (exp is Expression.Binary) {
             checkExpressionType(exp) { resultExpression = rebuildExpression(it) }
-            graph.root = resultExpression
-            buildTree(resultExpression)
+
+            val expForGraph = SyntaxAnalyzer(
+                    LexerAnalyzer(
+                            ByteArrayInputStream(exp.toString().toByteArray())))
+                    .exp()
+            graph.root = expForGraph
+            buildTree(expForGraph as Expression.Binary)
         } else {
             graph.root = exp
         }

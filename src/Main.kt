@@ -1,3 +1,4 @@
+import lab5.Conveyor
 import java.io.FileInputStream
 
 fun main(argv: Array<String>) {
@@ -7,22 +8,14 @@ fun main(argv: Array<String>) {
     println("----------------")
     println("---- start expression ----")
     println(e.toString())
-  /*  if (e is Expression.Binary) {
-        val commutation = Commutation(e)
-        commutation.commutateExp()
-        commutation.printExp()
-    }*/
 
-    if (e is Expression.Binary) {
-        val scopeUnpacker = ScopePacker(e)
-        scopeUnpacker.pack()
-    }
-
-   /* val treeBuilder = TreeBuilder(e!!)
+    val treeBuilder = TreeBuilder(e!!)
     println("----------------")
     println(e.toString())
     println("--- Get Tree ---")
-    treeBuilder.showTree()*/
+    //treeBuilder.showTree()
 
+    val conveyor = Conveyor(e.toString())
+    conveyor.startConveyor()
     println("--- done ---")
 }//main
