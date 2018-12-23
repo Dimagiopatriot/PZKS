@@ -4,39 +4,73 @@ import Expression
 import LexerAnalyzer
 import SyntaxAnalyzer
 import java.io.ByteArrayInputStream
+import java.util.*
 
 class Conveyor(stringExp: String) {
 
     private val mainExpression = SyntaxAnalyzer(LexerAnalyzer(ByteArrayInputStream(stringExp.toByteArray()))).exp()
-    private val expressionWrapperList = mutableListOf<TickExpresssionWrapper>()
+    private val expressionWrapperList = mutableListOf<TickExpressionWrapper>()
     private val instructionMap = mutableMapOf<String, List<Expression>>()
+    private val layerHolders = mutableListOf<LayerInfoHolder>()
+    private lateinit var tickMap : SortedMap<Int, List<LayerInfoHolder>>
 
-    private val tickSize = 4
+    private val tickSize = 3
+    private val layerNumber = 3
 
     fun startConveyor() {
         if (mainExpression is Expression.Binary) {
             extractParentDeep(mainExpression)
             val mapOfExpressionWrapperList = expressionWrapperList.groupBy { it.parentCount }.toSortedMap(reverseOrder())
 
-            var instructionCounter = 0
-            mapOfExpressionWrapperList.forEach { map ->
-                val expressionList = map.value
-                val delayStack = mutableListOf<StackDelayWrapper>()
-                var i = 0
+            conveyingV2(mapOfExpressionWrapperList)
+            tickMap = layerHolders.groupBy { it.tik }.toSortedMap()
 
-                do {
-                    if (i < expressionList.size) {
-                        delayStack.add(StackDelayWrapper(tickSize, expressionList[i]))
-                        i++
+            //conveyingV1(mapOfExpressionWrapperList)
+        }
+    }
+
+    fun conveyingV2(mapOfExpressionWrapperList: Map<Int, List<TickExpressionWrapper>>) {
+        var outsideTickCounter = 1
+        var insideTickCounter: Int
+
+        for (layerNum in 1..layerNumber) {
+            insideTickCounter = outsideTickCounter
+            mapOfExpressionWrapperList.forEach {
+                val expList = it.value.map { tickExpressionWrapper -> tickExpressionWrapper.binaryExpression }
+                expList.forEach { expression ->
+                    for (i in 1..tickSize) {
+                        layerHolders.add(LayerInfoHolder(expression, insideTickCounter, layerNum))
+                        insideTickCounter++
                     }
 
-                    instructionMap["Instruction $instructionCounter"] = delayStack.map { it.tickExpressionWrapper.binaryExpression }
-                    instructionCounter++
-
-                    delayStack.forEach { element -> element.delayToRemove-- }
-                    delayStack.removeAll { it.delayToRemove == 0 }
-                } while (delayStack.isNotEmpty())
+                    if (expression == expList.last()) {
+                        insideTickCounter += layerNumber - 1
+                    }
+                }
             }
+            outsideTickCounter++
+        }
+    }
+
+    fun conveyingV1(mapOfExpressionWrapperList: Map<Int, List<TickExpressionWrapper>>) {
+        var instructionCounter = 0
+        mapOfExpressionWrapperList.forEach { map ->
+            val expressionList = map.value
+            val delayStack = mutableListOf<StackDelayWrapper>()
+            var i = 0
+
+            do {
+                if (i < expressionList.size) {
+                    delayStack.add(StackDelayWrapper(tickSize, expressionList[i]))
+                    i++
+                }
+
+                instructionMap["Instruction $instructionCounter"] = delayStack.map { it.tickExpressionWrapper.binaryExpression }
+                instructionCounter++
+
+                delayStack.forEach { element -> element.delayToRemove-- }
+                delayStack.removeAll { it.delayToRemove == 0 }
+            } while (delayStack.isNotEmpty())
         }
     }
 
@@ -49,7 +83,7 @@ class Conveyor(stringExp: String) {
             parentExp = buffExp.parent
             parentCount++
         }
-        expressionWrapperList.add(TickExpresssionWrapper(parentCount, expression))
+        expressionWrapperList.add(TickExpressionWrapper(parentCount, expression))
 
         if (expression.left is Expression.Binary) {
             extractParentDeep(expression.left as Expression.Binary)
@@ -58,5 +92,17 @@ class Conveyor(stringExp: String) {
         if (expression.right is Expression.Binary) {
             extractParentDeep(expression.right as Expression.Binary)
         }
+    }
+
+    fun printTicks() {
+        var output = ""
+        tickMap.forEach { output += "Tick #${it.key} : ${it.value.joinToString(separator = "\n\t\t  ")} \n" }
+        println(output)
+    }
+
+    fun printInstructions() {
+        var output = ""
+        instructionMap.forEach { output += "${it.key} : ${it.value.joinToString(separator = "\n\t\t\t\t")} \n" }
+        println(output)
     }
 }

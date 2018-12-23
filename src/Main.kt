@@ -17,5 +17,6 @@ fun main(argv: Array<String>) {
 
     val conveyor = Conveyor(e.toString())
     conveyor.startConveyor()
+    conveyor.printTicks()
     println("--- done ---")
 }//main
