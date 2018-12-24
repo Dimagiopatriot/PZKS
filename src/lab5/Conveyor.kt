@@ -12,7 +12,7 @@ class Conveyor(stringExp: String) {
     private val expressionWrapperList = mutableListOf<TickExpressionWrapper>()
     private val instructionMap = mutableMapOf<String, List<Expression>>()
     private val layerHolders = mutableListOf<LayerInfoHolder>()
-    private lateinit var tickMap : SortedMap<Int, List<LayerInfoHolder>>
+    private lateinit var tickMap: SortedMap<Int, List<LayerInfoHolder>>
 
     private val tickSize = 3
     private val layerNumber = 3
@@ -98,6 +98,10 @@ class Conveyor(stringExp: String) {
         var output = ""
         tickMap.forEach { output += "Tick #${it.key} : ${it.value.joinToString(separator = "\n\t\t  ")} \n" }
         println(output)
+        println("Time: ${tickMap.size} ticks")
+        val acceleration = ((expressionWrapperList.size * tickSize * layerNumber) + 2).toDouble() / tickMap.size.toDouble()
+        println("Acceleration: $acceleration")
+        println("Efficiency: ${acceleration / layerNumber}")
     }
 
     fun printInstructions() {
