@@ -10,11 +10,17 @@ class Conveyor(stringExp: String) {
 
     private val mainExpression = SyntaxAnalyzer(LexerAnalyzer(ByteArrayInputStream(stringExp.toByteArray()))).exp()
     private val expressionWrapperList = mutableListOf<TickExpressionWrapper>()
-    private val instructionMap = mutableMapOf<String, List<Expression>>()
     private val layerHolders = mutableListOf<LayerInfoHolder>()
-    private lateinit var tickMap: SortedMap<Int, List<LayerInfoHolder>>
+    private lateinit var operationMap: SortedMap<Int, List<LayerInfoHolder>>
 
-    private val tickSize = 3
+    private val tickSizes = mapOf(
+            LexerAnalyzer.plus to 1,
+            LexerAnalyzer.minus to 2,
+            LexerAnalyzer.times to 3,
+            LexerAnalyzer.over to 4
+    )
+    private val maxTickSize = tickSizes.map { it.value }.max()!!
+
     private val layerNumber = 3
 
     fun startConveyor() {
@@ -23,9 +29,7 @@ class Conveyor(stringExp: String) {
             val mapOfExpressionWrapperList = expressionWrapperList.groupBy { it.parentCount }.toSortedMap(reverseOrder())
 
             conveyingV2(mapOfExpressionWrapperList)
-            tickMap = layerHolders.groupBy { it.tik }.toSortedMap()
-
-            //conveyingV1(mapOfExpressionWrapperList)
+            operationMap = layerHolders.groupBy { it.tik }.toSortedMap()
         }
     }
 
@@ -38,39 +42,15 @@ class Conveyor(stringExp: String) {
             mapOfExpressionWrapperList.forEach {
                 val expList = it.value.map { tickExpressionWrapper -> tickExpressionWrapper.binaryExpression }
                 expList.forEach { expression ->
-                    for (i in 1..tickSize) {
-                        layerHolders.add(LayerInfoHolder(expression, insideTickCounter, layerNum))
-                        insideTickCounter++
-                    }
+                    layerHolders.add(LayerInfoHolder(expression, insideTickCounter, layerNum))
+                    insideTickCounter += maxTickSize
 
                     if (expression == expList.last()) {
-                        insideTickCounter += layerNumber - 1
+                        insideTickCounter += (layerNumber - 1) * maxTickSize
                     }
                 }
             }
-            outsideTickCounter++
-        }
-    }
-
-    fun conveyingV1(mapOfExpressionWrapperList: Map<Int, List<TickExpressionWrapper>>) {
-        var instructionCounter = 0
-        mapOfExpressionWrapperList.forEach { map ->
-            val expressionList = map.value
-            val delayStack = mutableListOf<StackDelayWrapper>()
-            var i = 0
-
-            do {
-                if (i < expressionList.size) {
-                    delayStack.add(StackDelayWrapper(tickSize, expressionList[i]))
-                    i++
-                }
-
-                instructionMap["Instruction $instructionCounter"] = delayStack.map { it.tickExpressionWrapper.binaryExpression }
-                instructionCounter++
-
-                delayStack.forEach { element -> element.delayToRemove-- }
-                delayStack.removeAll { it.delayToRemove == 0 }
-            } while (delayStack.isNotEmpty())
+            outsideTickCounter += maxTickSize
         }
     }
 
@@ -96,17 +76,19 @@ class Conveyor(stringExp: String) {
 
     fun printTicks() {
         var output = ""
-        tickMap.forEach { output += "Tick #${it.key} : ${it.value.joinToString(separator = "\n\t\t  ")} \n" }
+        operationMap.forEach { output += "Ticks #${it.key} - ${it.key + maxTickSize - 1} : ${it.value.joinToString(separator = "\n\t\t\t\t  ")} \n" }
         println(output)
-        println("Time: ${tickMap.size} ticks")
-        val acceleration = ((expressionWrapperList.size * tickSize * layerNumber) + 2).toDouble() / tickMap.size.toDouble()
+        val ticksSize = operationMap.map { it.key }.max()!! + maxTickSize - 1
+        println("Time: $ticksSize ticks")
+        val acceleration = ((getOperationMnojennya() * layerNumber) + 2).toDouble() / ticksSize.toDouble()
         println("Acceleration: $acceleration")
         println("Efficiency: ${acceleration / layerNumber}")
     }
 
-    fun printInstructions() {
-        var output = ""
-        instructionMap.forEach { output += "${it.key} : ${it.value.joinToString(separator = "\n\t\t\t\t")} \n" }
-        println(output)
+    fun getOperationMnojennya(): Int {
+        val mapByOpr = expressionWrapperList.groupBy { it.binaryExpression.opr }
+        var groupator = 0
+        mapByOpr.forEach { element -> groupator += element.value.size * tickSizes[element.key]!! }
+        return groupator
     }
 }
